@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DataAgent · 自主数据分析智能体 | Zhang Mengliang</title>
+<meta name="description" content="基于 DeepSeek Function Calling 的自主数据分析 Agent：上传数据后自动完成画像诊断、分析方向、多模型对比与中文报告生成。">
+<meta property="og:title" content="DataAgent · 自主数据分析智能体">
+<meta property="og:description" content="16 个工具的 Agent 框架 · 单次问答 token 降低 73% · 数据进去，带图表的报告出来">
+<meta property="og:type" content="website">
+<style>
+  :root{--bg:#0b1017;--card:#141c29;--card2:#101825;--fg:#e8eef8;--muted:#8fa1bb;--acc:#4f8cff;--ok:#28d391;--line:#22304a}
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(900px 520px at 12% -8%,#16243a,#0b1017 60%);
+       color:var(--fg);font:15px/1.78 "Microsoft YaHei","PingFang SC",system-ui,-apple-system,sans-serif}
+  .wrap{max-width:980px;margin:0 auto;padding:44px 22px 90px}
+  h1{font-size:31px;line-height:1.3;margin:0 0 10px;background:linear-gradient(90deg,#6ea8ff,#28d391);
+     -webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:var(--muted);margin-bottom:20px;font-size:14.5px}
+  .sub b{color:#cfe0ff;font-weight:600}
+  .links a{display:inline-block;margin:0 10px 10px 0;padding:10px 18px;border-radius:10px;
+     text-decoration:none;color:#fff;background:linear-gradient(135deg,#3f7cf0,#2fbf8a);font-weight:600;font-size:14px}
+  .links a:hover{filter:brightness(1.08)}
+  .links a.ghost{background:var(--card);border:1px solid var(--line);color:var(--fg);font-weight:400}
+  .links a.ghost:hover{border-color:var(--acc)}
+  h2{font-size:19px;margin:40px 0 14px;padding-left:11px;border-left:4px solid var(--acc)}
+  h3{font-size:15.5px;margin:22px 0 8px;color:#cfe0ff}
+  p{margin:.5em 0}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:12px;margin:18px 0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:15px}
+  .card .k{color:var(--muted);font-size:12px}
+  .card .v{font-size:22px;font-weight:700;margin-top:5px;color:#cfe0ff}
+  .card .v small{font-size:13px;font-weight:400;color:var(--muted)}
+  .card .n{font-size:11.5px;color:var(--muted);margin-top:5px}
+  .step{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:10px 0}
+  .step b{color:#8fd9ff}
+  ul{padding-left:20px;margin:.4em 0}
+  li{margin:.22em 0}
+  iframe{width:100%;height:660px;border:1px solid var(--line);border-radius:12px;background:#fff}
+  .shot{width:100%;border-radius:12px;border:1px solid var(--line);background:#fff;margin:12px 0}
+  .cap{color:var(--muted);font-size:13px;margin:-6px 0 14px}
+  .gal{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .gal a{display:block;background:#fff;border-radius:10px;overflow:hidden;border:1px solid var(--line)}
+  .gal img{width:100%;display:block}
+  .gal span{display:block;background:var(--card);color:#bcd2f2;font-size:12.5px;padding:7px 10px}
+  .tagline{background:linear-gradient(135deg,#16203a,#132a26);border:1px solid #2b4a6b;border-radius:13px;
+     padding:16px 19px;margin:20px 0;font-size:15px}
+  code{background:#0d1624;border:1px solid var(--line);border-radius:5px;padding:1px 6px;font-family:Consolas,monospace;font-size:13px}
+  pre{background:#0d1624;border:1px solid var(--line);border-radius:9px;padding:12px;overflow:auto;font-size:12.5px;line-height:1.6}
+  table{border-collapse:collapse;width:100%;margin:12px 0;font-size:13.5px;background:var(--card2);border-radius:10px;overflow:hidden}
+  th,td{border-bottom:1px solid var(--line);padding:8px 11px;text-align:left}
+  th{background:#18233a;color:#cfe0ff;font-weight:600}
+  .foot{color:var(--muted);font-size:13px;margin-top:48px;border-top:1px solid var(--line);padding-top:18px}
+  .foot a{color:#7fb2ff}
+  @media(max-width:640px){iframe{height:430px}.gal{grid-template-columns:1fr}h1{font-size:24px}.wrap{padding:26px 16px 70px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>DataAgent · 自主数据分析智能体</h1>
+  <div class="sub">
+    <b>Zhang Mengliang</b> · HKU · CS · 2026 · u3684244@connect.hku.hk · https://github.com/ZZZTY-z/Dataagent-site<br>
+    个人独立项目 · Python / Flask / LLM Agent（DeepSeek Function Calling）
+  </div>
+
+  <div class="tagline">
+    上传一份数据，Agent 自己完成<b>画像诊断 → 分析方向 → 多模型对比 → 中文结论与报告</b>；
+    人只需要用中文追问，或指定方向（"用随机森林和神经网络对比预测流失"）。
+  </div>
+
+  <div class="links">
+    <a href="demo-report.html" target="_blank">📊 查看完整分析报告</a>
+    <a class="ghost" href="charts/model_compare.html" target="_blank">📈 交互式图表</a>
+    <a class="ghost" href="https://github.com/ZZZTY-z/DataAgent" target="_blank">💻 源码</a>
+    <a class="ghost" href="https://github.com/ZZZTY-z/DataAgent/archive/refs/heads/main.zip" target="_blank">⬇ 下载源码 ZIP</a>
+    <a class="ghost" href="https://github.com/ZZZTY-z/Dataagent-site" target="_blank">🗂 本页源码</a>
+  </div>
+
+  <h2>它解决什么问题</h2>
+  <p>每拿到一份新数据，都要重复做描述统计、画图、试模型、写结论；而非技术同事又看不懂代码输出。
+  这个 Agent 把这条链路自动化，并且把「重计算」全部留在本地：<b>数值统计、特征工程、模型训练都在本机完成，
+  大模型只负责决策与撰写结论</b> —— 因此结果可复现、数值可信、调用成本低。</p>
+
+  <h2>关键指标</h2>
+  <div class="cards">
+    <div class="card"><div class="k">注册工具数</div><div class="v">16</div><div class="n">JSON Schema 注册与调度</div></div>
+    <div class="card"><div class="k">支持模型</div><div class="v">11 类</div><div class="n">线性 → 树 → 集成 → 神经网络</div></div>
+    <div class="card"><div class="k">单次问答 token</div><div class="v">↓73%</div><div class="n">44k → 12k（省钱模式）</div></div>
+    <div class="card"><div class="k">端到端耗时</div><div class="v">16<small>s</small></div><div class="n">2000 行数据全流程出报告</div></div>
+  </div>
+
+  <h2>工作流程</h2>
+  <div class="step"><b>① 画像与质量诊断</b>：自动识别列语义（数值/类别/时间/文本/ID），输出统计摘要、缺失率、离群值、
+  共线性（VIF）、疑似泄漏字段，并给出 0~100 的数据质量评分与处理建议。</div>
+  <div class="step"><b>② 分析方向建议</b>：按数据维度说明该看什么、适合哪类方法（线性 / 非线性 / 树模型 / 集成 / 神经网络）、
+  适用前提与注意事项，并列出可选作标签的候选列。</div>
+  <div class="step"><b>③ 建模与解释</b>：基线 → 线性 → 多项式 → 随机森林 → 梯度提升 → 神经网络，统一交叉验证评估；
+  附特征重要性、部分依赖曲线（PDP）、残差诊断与混淆矩阵。</div>
+  <div class="step"><b>④ 结论与报告</b>：Agent 调用大模型撰写中文结论，一键产出 <b>HTML（自包含图表）/ Excel（多表单）/ Markdown</b> 三种报告。</div>
+
+  <h2>看一份真实结果</h2>
+  <p>下面是 Agent 对一个客户流失数据集（2,012 行 × 16 列，含缺失与重复行）<b>全自动生成</b>的完整报告。
+  本次分析自动识别目标列为「是否流失」，对比 4 个模型后判定随机森林最优（交叉验证 ROC-AUC <b>0.8864</b>，
+  测试集 0.8686，显著优于基线 0.5），并给出关键因子与下一步建议：</p>
+  <iframe src="demo-report.html" title="DataAgent 分析报告"></iframe>
+  <div class="cap">↑ 报告为单个 HTML 文件，图表已内嵌，可直接转发与离线打开。</div>
+
+  <h2>图表与解释（截图）</h2>
+  <div class="gal">
+    <a href="charts/model_compare.html" target="_blank">
+      <img src="images/17_%E6%A8%A1%E5%9E%8B%E5%AF%B9%E6%AF%94%C2%B7CV_ROC-AUC.png" alt="模型对比 ROC-AUC">
+      <span>模型对比：随机森林 ROC-AUC 0.886 领先，多项式 0.857，基线 0.5</span>
+    </a>
+    <a href="charts/importance.html" target="_blank">
+      <img src="images/15_%E7%89%B9%E5%BE%81%E9%87%8D%E8%A6%81%E6%80%A7.png" alt="特征重要性">
+      <span>置换重要性：定位流失关键因子（成交/使用类特征权重最高）</span>
+    </a>
+    <a href="charts/corr.html" target="_blank">
+      <img src="images/09_%E7%9B%B8%E5%85%B3%E6%80%A7%E5%88%86%E6%9E%90.png" alt="相关性热力图">
+      <span>相关性热力图 + VIF 共线性诊断</span>
+    </a>
+    <a href="charts/pdp_satisfaction.html" target="_blank">
+      <img src="images/19_%E6%BB%A1%E6%84%8F%E5%BA%A6%E8%AF%84%E5%88%86_%E9%83%A8%E5%88%86%E4%BE%9D%E8%B5%96.png" alt="部分依赖曲线">
+      <span>部分依赖曲线：满意度评分与流失概率的非线性关系</span>
+    </a>
+  </div>
+  <p style="margin-top:14px">更多交互式图表（可悬停查看精确数值、缩放）：
+    <a href="charts/target_box.html" target="_blank">目标分组箱线</a> ·
+    <a href="charts/target_rate.html" target="_blank">各维度流失率对比</a> ·
+    <a href="charts/timeseries.html" target="_blank">时间趋势</a> ·
+    <a href="charts/pairplot.html" target="_blank">多变量矩阵</a> ·
+    <a href="charts/missing.html" target="_blank">缺失值分布</a>
+  </p>
+
+  <!-- 【可选】把你的界面截图放在这里，效果最好：截浏览器里的 Agent 对话界面，存成 images/ui-main.png 后取消下一行注释
+  <h2>界面与对话</h2>
+  <img class="shot" src="images/ui-main.png" alt="DataAgent 界面">
+  <div class="cap">左：数据与控制台；中：Agent 调工具过程与结论；右：状态与 token 用量。</div>
+  -->
+
+  <h2>技术实现</h2>
+
+  <h3>1. Agent 核心（Function Calling 多轮循环）</h3>
+  <ul>
+    <li>把分析能力封装为 <b>16 个工具</b>（画像 / 分组汇总 / 假设检验 / 相关分析 / 可视化 / 特征工程 / 训练模型 /
+      模型解释 / 预测 / 聚类 / 联网检索 / 出报告），每个工具带 JSON Schema 描述，交给模型自主调度。</li>
+    <li>实现多轮「思考 → 调用工具 → 回填结果 → 继续思考」循环，工具执行结果实时流式回显给用户（Flask + SSE）。</li>
+    <li><b>意图识别 + 工具子集动态路由</b>：按用户问题只发送 6~12 个相关工具（问"有哪些维度"只发分析类，
+      问"预测流失"才带建模类），工具定义开销从 2757 降至 <b>631~1109 tokens/轮</b>。</li>
+  </ul>
+
+  <h3>2. Token 成本优化（本项目重点）</h3>
+  <table>
+    <tr><th>优化手段</th><th>做法</th><th>效果</th></tr>
+    <tr><td>工具 Schema 精简</td><td>压缩参数描述与枚举，去掉冗余字段</td><td>2757 → 1615 tokens</td></tr>
+    <tr><td>按意图筛选工具</td><td>关键词意图匹配 → 只发相关工具组</td><td>降至 631~1109 tokens/轮</td></tr>
+    <tr><td>前缀缓存友好</td><td>易变的数据上下文拆为独立消息，保证 system + tools 前缀字节稳定</td><td>缓存命中 44%~57%，该部分按约 1/10 计价</td></tr>
+    <tr><td>调用去重</td><td>参数归一化后哈希比对，同参调用直接跳过</td><td>实测拦掉 9 次重复调用</td></tr>
+    <tr><td>上下文双层压缩</td><td>历史按消息边界折成摘要；工具输出按模式限长（1200/2500/6000 字）</td><td>单次问答 44k → <b>12k tokens（-73%）</b></td></tr>
+    <tr><td>轮次与预算闸门</td><td>三档成本模式 + 单会话 token 预算上限 + 同工具单轮调用上限</td><td>成本可预期、可硬约束</td></tr>
+  </table>
+
+  <h3>3. 数据分析能力层</h3>
+  <ul>
+    <li><b>可视化 15 类</b>：分布 / 箱线 / 类别 / 时间趋势 / 散点 / 相关热力图 / 缺失 / 散点矩阵 / 特征重要性 / 部分依赖 / 残差 …，
+      每张图同时产出 Plotly 交互版与 Matplotlib 报表版。</li>
+    <li><b>统计检验 8 类</b>：Pearson/Spearman/Kendall 相关、Welch t 检验、单因素 ANOVA、卡方独立性检验，
+      并输出效应量（Cohen's d、Cramér's V、η²）与 VIF 共线性诊断。</li>
+    <li><b>特征工程 16 类算子</b>：中位数/众数填充、缺失指示变量、对数变换、分位数缩尾、比值、交互项、等频分箱、
+      时间特征（年/月/星期/周末/月度 sin-cos）、频率编码、目标编码、文本特征、分组统计特征。</li>
+    <li><b>模型 11 类</b>：基线、线性/Logistic、Ridge、Lasso、多项式（非线性）、决策树、随机森林、
+      HistGradientBoosting、KNN、SVM、MLP 神经网络；统一预处理管线与交叉验证，保证横向可比。</li>
+    <li><b>无监督</b>：标准化 → PCA 降维 → KMeans/层次/DBSCAN 聚类，按轮廓系数自动选簇数，输出簇画像热力图与业务命名建议。</li>
+  </ul>
+
+  <h3>4. 工程实现</h3>
+  <ul>
+    <li>Flask 后端 + Server-Sent Events 流式通道，工具执行过程逐条推送到前端；前端为零依赖单文件 HTML/JS，无需构建。</li>
+    <li><b>无 API Key 降级</b>：未配置密钥时自动切换规则引擎，画像、统计、建模、聚类与报告全部照常，功能不中断。</li>
+    <li>模块化拆分为 12 个 Python 模块（数据引擎 / 可视化 / 建模 / 工具层 / Agent / 报表 / 搜索 …），
+      配 3 个端到端自测脚本与中文文档。</li>
+  </ul>
+
+  <h3>5. 攻克的工程问题</h3>
+  <ul>
+    <li><b>并行受限导致树模型崩溃</b>：受限环境下 joblib 创建线程池失败（WinError 5），随机森林/GBDT 直接报错。
+      增加运行时能力探测，探测到不可用即自动降级单线程，功能不受影响。</li>
+    <li><b>SDK 版本不兼容引发的静默降级</b>：<code>openai</code> 3.x 与 <code>httpx</code> 0.28 冲突导致所有 API 调用抛
+      <code>TypeError</code>，而异常被吞掉后系统"看似正常"实则全程未调用模型。改为原生 HTTP 客户端实现协议，
+      并把真实错误暴露到界面与日志。</li>
+    <li><b>类型序列化陷阱</b>：JSON 转换层漏了 Python 原生 <code>int</code> 分支，导致统计值变成字符串、
+      下游比较报错；补齐类型分支并加回归自测。</li>
+    <li><b>性能优化</b>：图表抽样 + 树数量按样本量自适应，全流程耗时 33s → 16s。</li>
+  </ul>
+
+  <h2>想了解技术细节？</h2>
+  <p>完整报告里可以看到自动生成的结论、模型对比表、混淆矩阵与数据字典；
+  源码与设计文档可访问 <a href="https://github.com/ZZZTY-z/DataAgent" target="_blank">GitHub 仓库</a>，
+  或直接 <a href="mailto:u3684244@connect.hku.hk">邮件联系我</a>，我很乐意演示实时分析过程。</p>
+
+  <div class="foot">
+    Zhang Mengliang · u3684244@connect.hku.hk · https://github.com/ZZZTY-z/Dataagent-site<br>
+    本项目完全本地运行，数据不上传第三方；演示数据为程序生成的合成数据。
+  </div>
+</div>
+</body>
+</html>
