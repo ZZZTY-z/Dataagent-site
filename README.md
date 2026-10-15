@@ -5,7 +5,7 @@
 > 🔗 在线访问：<https://zzzty-z.github.io/Dataagent-site/>
 > 💻 项目源码：<https://github.com/ZZZTY-z/DataAgent>
 
-## 这是什么
+## 项目介绍
 
 一个跑在本机（无需服务器）的 LLM 数据分析 Agent：上传 CSV/Excel 后，自动完成
 **数据画像 → 质量诊断 → 分析方向 → 多模型对比 → 中文结论与报告**，
